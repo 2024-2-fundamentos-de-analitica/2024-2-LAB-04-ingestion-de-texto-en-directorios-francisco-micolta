@@ -4,7 +4,8 @@
 """
 Escriba el codigo que ejecute la accion solicitada en cada pregunta.
 """
-
+import os
+import pandas as pd
 
 def pregunta_01():
     """
@@ -71,3 +72,31 @@ def pregunta_01():
 
 
     """
+    """Procesa los archivos de un directorio y devuelve un DataFrame con frases y sentimientos."""
+def procesar_directorio(base_dir):
+    data = []
+
+    for sentiment in ["negative", "positive", "neutral"]:
+        sentiment_dir = os.path.join(base_dir, sentiment)
+        
+        if not os.path.exists(sentiment_dir):
+            continue
+
+        for filename in os.listdir(sentiment_dir):
+            file_path = os.path.join(sentiment_dir, filename)
+            with open(file_path, "r", encoding="utf-8") as f:
+                phrase = f.read().strip()  # Leer el contenido del archivo
+
+            data.append([phrase, sentiment])
+
+    return pd.DataFrame(data, columns=["phrase", "target"])
+
+def pregunta_01():
+    """Genera los archivos train_dataset.csv y test_dataset.csv a partir de los archivos de texto."""
+    train_df = procesar_directorio("files/input/input/train")
+    test_df = procesar_directorio("files/input/input/test")
+
+    os.makedirs("files/output", exist_ok=True)  # Crear la carpeta de salida si no existe
+
+    train_df.to_csv("files/output/train_dataset.csv", index=False)
+    test_df.to_csv("files/output/test_dataset.csv", index=False)
